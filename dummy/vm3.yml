@@ -1,0 +1,50 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: true
+  tasks:
+    - name: Create public ip
+      azure_rm_publicipaddress:
+        resource_group: ansiproject
+        allocation_method: Dynamic
+        name: publicip003
+
+    - name: Create security group that allows SSH
+      azure_rm_securitygroup:
+        resource_group: ansiproject
+        name: secgroup003
+        rules:
+          - name: SSH
+            protocol: Tcp
+            destination_port_range: 22
+            access: Allow
+            priority: 101
+            direction: Inbound
+
+    - name: Create NIC
+      azure_rm_networkinterface:
+        resource_group: ansiproject
+        name: testnic003
+        virtual_network: testvn001
+        subnet: subnet001
+        public_ip_name: publicip003
+        security_group: secgroup003
+
+    - name: Create virtual machine
+      azure_rm_virtualmachine:
+        resource_group: ansiproject
+        name: testvm003              
+        vm_size: Standard_D1
+        availability_set: dikavailabilityset
+        managed_disk_type: Standard_LRS
+        admin_username: adminUser
+        ssh_password_enabled: false
+        network_interfaces: testnic003
+        ssh_public_keys:
+            - path: /home/adminUser/.ssh/authorized_keys
+              key_data: ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAi7/h2ir7zo6A/zgSM+4pE8Cm/0wU3J9G1bdiAAvX87B2qs0e8LLsaam1OHZ9Ck1sxjwOrCYLehkhnE56GepTLinErAUzJNN7Kt/eMmtVMt3ZYRplEHMmD9PnLL9hR7+j88ManAtxUh+DXtv2jiHZYS4rkanPu9eS9oKyOjoxr5IO7nIzSrUp7hR656Q/JwePhaopj+J5h4WB8F/dnwNZWKducAdXVuDnSisIxBOhicPdrl8ZZv2+gvmOlce8quvh13e7KmqdQG3ns6JmAmv+orFUWMc8046P7DT/30htubi0DpGgL4wOVEmVc6/XKXOF1Oczc2eaVh1v/4xhpagzxw== rsa-key-20190812
+        image:
+          offer: CentOS
+          publisher: OpenLogic
+          sku: '7.1'
+          version: latest

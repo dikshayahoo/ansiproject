@@ -1,0 +1,3 @@
+create yml of all common resources
+
+create single yaml for all vms

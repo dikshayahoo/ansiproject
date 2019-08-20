@@ -1,0 +1,4 @@
+[webservers]
+vm01 ansible_host=10.10.0.4 ansible_user=adminUser
+vm02 ansible_host=10.10.0.5 ansible_user=adminUser
+vm03 ansible_host=10.10.0.6 ansible_user=adminUser
